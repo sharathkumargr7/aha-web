@@ -45,10 +45,69 @@ aha-web/
 │   ├── environments/
 │   └── styles/
 ├── .eslintrc.json
+├── .prettierrc
+├── .prettierignore
 ├── angular.json
 ├── package.json
 ├── tsconfig.json
 └── README.md
+```
+
+## Code Quality Tools
+
+### ESLint
+
+The project uses ESLint for TypeScript and HTML files. Configuration can be found in `.eslintrc.json`.
+
+```bash
+# Run linting
+npm run lint
+```
+
+### Prettier
+
+Prettier is configured for code formatting. Configuration is in `.prettierrc`:
+
+```json
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "semi": true,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "endOfLine": "auto"
+}
+```
+
+```bash
+# Format code
+npm run format
+```
+
+### Husky and lint-staged
+
+The project uses Husky for Git hooks and lint-staged for running scripts on staged files.
+
+Pre-commit hook will:
+- Run Prettier on all staged files
+- Run ESLint on TypeScript and HTML files
+- Format SCSS/CSS files with Prettier
+
+Configuration in package.json:
+```json
+{
+  "lint-staged": {
+    "src/**/*.{ts,html}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "src/**/*.{css,scss}": [
+      "prettier --write"
+    ]
+  }
+}
 ```
 
 ## Features
@@ -73,76 +132,14 @@ ng build --configuration production
 # Run tests
 ng test
 
-# Run end-to-end tests
-ng e2e
-
-# Lint the project
+# Run linting
 ng lint
 
-# Generate new component
-ng generate component component-name
+# Format code
+npm run format
 
-# Generate new service
-ng generate service service-name
-```
-
-## ESLint Configuration
-
-The project uses ESLint with Angular ESLint version 19.2.0 for code quality and consistency. Configuration can be found in `.eslintrc.json`:
-
-```json
-{
-  "root": true,
-  "ignorePatterns": ["projects/**/*"],
-  "overrides": [
-    {
-      "files": ["*.ts"],
-      "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates"
-      ],
-      "rules": {
-        "@angular-eslint/directive-selector": [
-          "error",
-          {
-            "type": "attribute",
-            "prefix": "app",
-            "style": "camelCase"
-          }
-        ],
-        "@angular-eslint/component-selector": [
-          "error",
-          {
-            "type": "element",
-            "prefix": "app",
-            "style": "kebab-case"
-          }
-        ]
-      }
-    },
-    {
-      "files": ["*.html"],
-      "extends": [
-        "plugin:@angular-eslint/template/recommended",
-        "plugin:@angular-eslint/template/accessibility"
-      ],
-      "rules": {}
-    }
-  ]
-}
-```
-
-Install ESLint dependencies:
-
-```bash
-npm install --save-dev @angular-eslint/builder@19.2.0 
-npm install --save-dev @angular-eslint/eslint-plugin@19.2.0 
-npm install --save-dev @angular-eslint/eslint-plugin-template@19.2.0 
-npm install --save-dev @angular-eslint/schematics@19.2.0 
-npm install --save-dev @angular-eslint/template-parser@19.2.0 
-npm install --save-dev eslint@^9.21.0
+# Run end-to-end tests
+ng e2e
 ```
 
 ## Environment Configuration
@@ -197,13 +194,28 @@ Tests will execute via [Cypress](https://www.cypress.io/).
 - Use TypeScript features and strong typing
 - Implement lazy loading for modules
 - Use Angular Material for UI components
-- Follow ESLint rules for consistent code style
+- Follow ESLint rules and Prettier formatting
+- Commit code that passes all pre-commit hooks
+
+## Dependencies
+
+### Main Dependencies
+- Angular 17.1.0
+- AG Grid Angular 31.0.1
+- RxJS 7.8.0
+
+### Development Dependencies
+- ESLint 8.56.0
+- Prettier 3.2.4
+- Husky 8.0.3
+- lint-staged 15.2.0
 
 ## Contributing
 
 1. Create a new branch for your feature
 2. Make your changes
-3. Submit a pull request
+3. Ensure all tests pass and code is formatted
+4. Submit a pull request
 
 ## Further Help
 
