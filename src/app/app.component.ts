@@ -12,19 +12,21 @@ import { Component } from '@angular/core';
       </div>
     </div>
   `,
-  styles: [`
-    .app-container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
+  styles: [
+    `
+      .app-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
 
-    .content {
-      flex: 1;
-      overflow: hidden;
-      padding: 20px;
-    }
-  `]
+      .content {
+        flex: 1;
+        overflow: hidden;
+        padding: 20px;
+      }
+    `,
+  ],
 })
 export class AppComponent {}

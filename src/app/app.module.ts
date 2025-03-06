@@ -11,10 +11,7 @@ import { AppComponent } from './app.component';
 import { MusicGridComponent } from './components/music-grid/music-grid.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    MusicGridComponent
-  ],
+  declarations: [AppComponent, MusicGridComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
@@ -22,9 +19,9 @@ import { MusicGridComponent } from './components/music-grid/music-grid.component
     MatToolbarModule,
     MatButtonModule,
     MatSnackBarModule,
-    AgGridModule
+    AgGridModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

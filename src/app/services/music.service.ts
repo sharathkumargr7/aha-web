@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { AhaMusic } from '../models/aha-music.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MusicService {
   private apiUrl = 'http://localhost:8080/api/music';

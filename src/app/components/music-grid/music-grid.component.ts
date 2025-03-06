@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ColDef, ICellRendererParams, ValueFormatterParams, GridReadyEvent } from 'ag-grid-community';
+import {
+  ColDef,
+  ICellRendererParams,
+  ValueFormatterParams,
+  GridReadyEvent,
+} from 'ag-grid-community';
 import { GridApi } from 'ag-grid-community';
 import { MusicService } from '../../services/music.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -22,44 +27,46 @@ import { AhaMusic } from '../../models/aha-music.model';
       </ag-grid-angular>
     </div>
   `,
-  styles: [`
-    .grid-container {
-      height: 100%;
-      width: 100%;
-    }
+  styles: [
+    `
+      .grid-container {
+        height: 100%;
+        width: 100%;
+      }
 
-    ag-grid-angular {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+      ag-grid-angular {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
 
-    :host ::ng-deep .url-cell {
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
+      :host ::ng-deep .url-cell {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
 
-    :host ::ng-deep .url-cell a {
-      color: #1976d2;
-      text-decoration: none;
-    }
+      :host ::ng-deep .url-cell a {
+        color: #1976d2;
+        text-decoration: none;
+      }
 
-    :host ::ng-deep .url-cell a:hover {
-      text-decoration: underline;
-    }
-  `]
+      :host ::ng-deep .url-cell a:hover {
+        text-decoration: underline;
+      }
+    `,
+  ],
 })
 export class MusicGridComponent implements OnInit {
   private gridApi!: GridApi;
   public rowData: AhaMusic[] = [];
-  
+
   public defaultColDef: ColDef = {
     sortable: true,
     filter: true,
     resizable: true,
     minWidth: 100,
-    unSortIcon: true
+    unSortIcon: true,
   };
 
   public columnDefs: ColDef[] = [
@@ -68,13 +75,13 @@ export class MusicGridComponent implements OnInit {
       headerName: 'Title',
       flex: 2,
       minWidth: 200,
-      sort: 'asc'
+      sort: 'asc',
     },
     {
       field: 'artists',
       headerName: 'Artists',
       flex: 2,
-      minWidth: 200
+      minWidth: 200,
     },
     {
       field: 'time',
@@ -93,7 +100,7 @@ export class MusicGridComponent implements OnInit {
         const dateA = new Date(valueA).getTime();
         const dateB = new Date(valueB).getTime();
         return dateA - dateB;
-      }
+      },
     },
     {
       field: 'sourceUrl',
@@ -104,16 +111,16 @@ export class MusicGridComponent implements OnInit {
         if (params.value) {
           const div = document.createElement('div');
           div.className = 'url-cell';
-          
+
           const url = new URL(params.value);
           const displayText = url.hostname + url.pathname;
-          
+
           const link = document.createElement('a');
           link.href = params.value;
           link.target = '_blank';
           link.title = params.value; // Show full URL on hover
           link.innerHTML = displayText;
-          
+
           div.appendChild(link);
           return div;
         }
@@ -127,7 +134,7 @@ export class MusicGridComponent implements OnInit {
         } catch {
           return 0;
         }
-      }
+      },
     },
     {
       field: 'detailUrl',
@@ -145,13 +152,13 @@ export class MusicGridComponent implements OnInit {
           return link;
         }
         return '';
-      }
-    }
+      },
+    },
   ];
 
   constructor(
     private musicService: MusicService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -172,39 +179,39 @@ export class MusicGridComponent implements OnInit {
 
   loadData() {
     this.musicService.getAllMusic().subscribe({
-      next: (data) => {
+      next: data => {
         this.rowData = data;
         if (this.gridApi) {
           this.gridApi.sizeColumnsToFit();
         }
       },
-      error: (error) => {
+      error: error => {
         this.showMessage('Error loading data: ' + error.message);
-      }
+      },
     });
   }
 
   importCsv() {
     this.musicService.importCsv().subscribe({
-      next: (response) => {
+      next: response => {
         this.showMessage(response);
         this.loadData();
       },
-      error: (error) => {
+      error: error => {
         this.showMessage('Error importing CSV: ' + error.message);
-      }
+      },
     });
   }
 
   cleanupDuplicates() {
     this.musicService.cleanupDuplicates().subscribe({
-      next: (response) => {
+      next: response => {
         this.showMessage(response);
         this.loadData();
       },
-      error: (error) => {
+      error: error => {
         this.showMessage('Error cleaning up duplicates: ' + error.message);
-      }
+      },
     });
   }
 
@@ -212,7 +219,7 @@ export class MusicGridComponent implements OnInit {
     this.snackBar.open(message, 'Close', {
       duration: 3000,
       horizontalPosition: 'center',
-      verticalPosition: 'bottom'
+      verticalPosition: 'bottom',
     });
   }
 }
