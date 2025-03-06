@@ -44,6 +44,7 @@ aha-web/
 │   ├── assets/
 │   ├── environments/
 │   └── styles/
+├── .eslintrc.json
 ├── angular.json
 ├── package.json
 ├── tsconfig.json
@@ -83,6 +84,65 @@ ng generate component component-name
 
 # Generate new service
 ng generate service service-name
+```
+
+## ESLint Configuration
+
+The project uses ESLint with Angular ESLint version 19.2.0 for code quality and consistency. Configuration can be found in `.eslintrc.json`:
+
+```json
+{
+  "root": true,
+  "ignorePatterns": ["projects/**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "app",
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "app",
+            "style": "kebab-case"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.html"],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended",
+        "plugin:@angular-eslint/template/accessibility"
+      ],
+      "rules": {}
+    }
+  ]
+}
+```
+
+Install ESLint dependencies:
+
+```bash
+npm install --save-dev @angular-eslint/builder@19.2.0 
+npm install --save-dev @angular-eslint/eslint-plugin@19.2.0 
+npm install --save-dev @angular-eslint/eslint-plugin-template@19.2.0 
+npm install --save-dev @angular-eslint/schematics@19.2.0 
+npm install --save-dev @angular-eslint/template-parser@19.2.0 
+npm install --save-dev eslint@^9.21.0
 ```
 
 ## Environment Configuration
@@ -128,7 +188,7 @@ Tests will execute via [Karma](https://karma-runner.github.io) in a browser.
 ng e2e
 ```
 
-Tests will execute via [Protractor](http://www.protractortest.org/).
+Tests will execute via [Cypress](https://www.cypress.io/).
 
 ## Best Practices
 
@@ -137,6 +197,7 @@ Tests will execute via [Protractor](http://www.protractortest.org/).
 - Use TypeScript features and strong typing
 - Implement lazy loading for modules
 - Use Angular Material for UI components
+- Follow ESLint rules for consistent code style
 
 ## Contributing
 
