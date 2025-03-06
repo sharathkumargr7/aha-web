@@ -1,0 +1,23 @@
+<div class="grid-container">
+    <div class="button-container">
+        <button mat-raised-button color="primary" (click)="importCsv()">
+            Import CSV
+        </button>
+        <button mat-raised-button color="accent" (click)="cleanupDuplicates()">
+            Clean Duplicates
+        </button>
+        <button mat-raised-button (click)="loadData()">
+            Refresh Data
+        </button>
+    </div>
+    
+    <ag-grid-angular
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        [pagination]="true"
+        [paginationAutoPageSize]="true"
+    >
+    </ag-grid-angular>
+</div>
