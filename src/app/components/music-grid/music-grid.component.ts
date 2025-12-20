@@ -14,6 +14,13 @@ import { AhaMusic } from '../../models/aha-music.model';
   selector: 'app-music-grid',
   template: `
     <div class="grid-container">
+      <div class="button-container">
+        <button mat-raised-button color="primary" (click)="importCsv()">Import CSV</button>
+        <button mat-raised-button color="accent" (click)="cleanupDuplicates()">
+          Clean Duplicates
+        </button>
+        <button mat-raised-button (click)="loadData()">Refresh Data</button>
+      </div>
       <ag-grid-angular
         class="ag-theme-alpine"
         [rowData]="rowData"
@@ -32,6 +39,12 @@ import { AhaMusic } from '../../models/aha-music.model';
       .grid-container {
         height: 100%;
         width: 100%;
+      }
+
+      .button-container {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
       }
 
       ag-grid-angular {

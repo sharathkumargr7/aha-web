@@ -16,10 +16,10 @@ export class MusicService {
   }
 
   importCsv(): Observable<string> {
-    return this.http.post<string>(`${this.apiUrl}/import`, {});
+    return this.http.get<string>(`${this.apiUrl}/import`);
   }
 
   cleanupDuplicates(): Observable<string> {
-    return this.http.post<string>(`${this.apiUrl}/cleanup`, {});
+    return this.http.get<string>(`${this.apiUrl}/cleanup`);
   }
 }
