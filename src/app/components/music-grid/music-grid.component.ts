@@ -29,6 +29,8 @@ import { AhaMusic } from '../../models/aha-music.model';
         [animateRows]="true"
         [rowSelection]="'multiple'"
         [sortingOrder]="['desc', 'asc', null]"
+        [pagination]="true"
+        [paginationPageSize]="20"
         (gridReady)="onGridReady($event)"
       >
       </ag-grid-angular>
@@ -39,17 +41,21 @@ import { AhaMusic } from '../../models/aha-music.model';
       .grid-container {
         height: 100%;
         width: 100%;
+        display: flex;
+        flex-direction: column;
       }
 
       .button-container {
         margin-bottom: 20px;
         display: flex;
         gap: 10px;
+        flex-shrink: 0;
       }
 
       ag-grid-angular {
         width: 100%;
-        height: 100%;
+        flex: 1;
+        min-height: 400px;
         display: block;
       }
 
@@ -191,6 +197,8 @@ export class MusicGridComponent implements OnInit {
   }
 
   loadData() {
+    // Load all data for client-side pagination
+    // For large datasets, you could implement chunked loading here
     this.musicService.getAllMusic().subscribe({
       next: data => {
         this.rowData = data;
