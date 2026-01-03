@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -10,8 +10,12 @@ export interface SongRequest {
 
 export interface PlaylistResponse {
   playlistUrl: string;
+  playlistId?: string;
   videoCount: number;
   requestedCount: number;
+  addedCount?: number;
+  alreadyAddedCount?: number;
+  notFoundCount?: number;
   error?: string;
 }
 
@@ -29,7 +33,39 @@ export class YouTubeService {
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     }
-    return this.http.post<PlaylistResponse>(`${this.apiUrl}/create-playlist`, songs, { headers });
+
+    // Include stored playlist ID if available
+    const storedPlaylistId = this.getStoredPlaylistId();
+    let params = new HttpParams();
+    if (storedPlaylistId) {
+      params = params.set('playlistId', storedPlaylistId);
+    }
+
+    return this.http.post<PlaylistResponse>(`${this.apiUrl}/create-playlist`, songs, {
+      headers,
+      params,
+    });
+  }
+
+  /**
+   * Gets the stored playlist ID for the current user
+   */
+  getStoredPlaylistId(): string | null {
+    return localStorage.getItem('youtube_playlist_id');
+  }
+
+  /**
+   * Stores the playlist ID for the current user
+   */
+  storePlaylistId(playlistId: string): void {
+    localStorage.setItem('youtube_playlist_id', playlistId);
+  }
+
+  /**
+   * Clears the stored playlist ID (useful when switching accounts)
+   */
+  clearStoredPlaylistId(): void {
+    localStorage.removeItem('youtube_playlist_id');
   }
 
   /**

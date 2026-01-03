@@ -204,6 +204,8 @@ export class MusicGridComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const accessToken = params['access_token'];
       if (accessToken) {
+        // Clear any stored playlist ID when logging in with a new token
+        this.youTubeService.clearStoredPlaylistId();
         localStorage.setItem('youtube_access_token', accessToken);
         this.showMessage('Successfully authenticated with YouTube!');
         // Clean up the URL
@@ -274,19 +276,24 @@ export class MusicGridComponent implements OnInit {
       return;
     }
 
-    // Get the first 5 displayed rows in the grid
-    const songs: AhaMusic[] = [];
-    for (let i = 0; i < 5; i++) {
-      const rowNode = this.gridApi.getDisplayedRowAtIndex(i);
-      if (rowNode?.data) {
-        songs.push(rowNode.data);
+    // Get all displayed rows and filter to only those not added to playlist
+    const allSongs: AhaMusic[] = [];
+    this.gridApi.forEachNodeAfterFilterAndSort(rowNode => {
+      if (rowNode.data) {
+        allSongs.push(rowNode.data);
       }
-    }
+    });
 
-    if (songs.length === 0) {
-      this.showMessage('No songs available to create playlist');
+    // Filter to only songs that haven't been added to playlist yet
+    const songsToAdd = allSongs.filter(song => !song.addedToPlaylist);
+
+    if (songsToAdd.length === 0) {
+      this.showMessage('No new songs available to add to playlist');
       return;
     }
+
+    // Take the first 5 unadded songs
+    const songs = songsToAdd.slice(0, 5);
 
     // Show loading message for the songs
     const loadingMessage = this.snackBar.open(
@@ -316,6 +323,11 @@ export class MusicGridComponent implements OnInit {
         }
 
         if (response.playlistUrl) {
+          // Store the playlist ID for future use (avoids extra API calls)
+          if (response.playlistId) {
+            this.youTubeService.storePlaylistId(response.playlistId);
+          }
+
           // Mark songs as added
           songs.forEach(song => (song.addedToPlaylist = true));
           this.gridApi.refreshCells({ force: true });
@@ -327,7 +339,10 @@ export class MusicGridComponent implements OnInit {
             // ignore clipboard errors
           }
 
-          const message = `Found ${response.videoCount} of ${response.requestedCount} songs. Playlist created.`;
+          const message =
+            response.addedCount && response.addedCount > 0
+              ? `Added ${response.addedCount} new song${response.addedCount > 1 ? 's' : ''} to playlist.`
+              : `Found ${response.videoCount} of ${response.requestedCount} songs. Playlist updated.`;
 
           // Show a persistent snackbar with an 'Open' action so the user can open it intentionally
           const snackRef = this.snackBar.open(message, 'Open', {
