@@ -7,8 +7,10 @@ import {
 } from 'ag-grid-community';
 import { GridApi } from 'ag-grid-community';
 import { MusicService } from '../../services/music.service';
+import { YouTubeService } from '../../services/youtube.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AhaMusic } from '../../models/aha-music.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-music-grid',
@@ -20,6 +22,9 @@ import { AhaMusic } from '../../models/aha-music.model';
           Clean Duplicates
         </button>
         <button mat-raised-button (click)="loadData()">Refresh Data</button>
+        <button mat-raised-button color="warn" (click)="createYouTubePlaylist()">
+          Create YouTube Playlist
+        </button>
       </div>
       <ag-grid-angular
         class="ag-theme-alpine"
@@ -177,10 +182,25 @@ export class MusicGridComponent implements OnInit {
 
   constructor(
     private musicService: MusicService,
+    private youTubeService: YouTubeService,
     private snackBar: MatSnackBar,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
+    // Check for access token in URL parameters (from OAuth redirect)
+    this.route.queryParams.subscribe(params => {
+      const accessToken = params['access_token'];
+      if (accessToken) {
+        localStorage.setItem('youtube_access_token', accessToken);
+        this.showMessage('Successfully authenticated with YouTube!');
+        // Clean up the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Notify other components about login status change
+        window.dispatchEvent(new CustomEvent('youtube-login-status-changed'));
+      }
+    });
+
     this.loadData();
   }
 
@@ -232,6 +252,68 @@ export class MusicGridComponent implements OnInit {
       },
       error: error => {
         this.showMessage('Error cleaning up duplicates: ' + error.message);
+      },
+    });
+  }
+
+  createYouTubePlaylist() {
+    if (!this.gridApi) {
+      this.showMessage('Grid not ready yet');
+      return;
+    }
+
+    // Always use the first displayed row in the grid as the song to send
+    const firstRowNode = this.gridApi.getDisplayedRowAtIndex(0);
+    const firstSong = firstRowNode?.data ?? (this.rowData.length > 0 ? this.rowData[0] : null);
+
+    if (!firstSong) {
+      this.showMessage('No songs available to create playlist');
+      return;
+    }
+
+    // Show loading message for a single song
+    const loadingMessage = this.snackBar.open(
+      `Searching YouTube for "${firstSong.title}"...`,
+      'Close',
+      {
+        duration: 0, // Keep open until dismissed
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      },
+    );
+
+    // Prepare request with only the first row's song
+    const songRequests = [
+      {
+        title: firstSong.title,
+        artists: firstSong.artists,
+      },
+    ];
+
+    // Call backend to create playlist
+    this.youTubeService.createPlaylist(songRequests).subscribe({
+      next: response => {
+        loadingMessage.dismiss();
+
+        if (response.error) {
+          this.showMessage('Error: ' + response.error);
+          return;
+        }
+
+        if (response.playlistUrl) {
+          // Open the playlist URL in a new tab
+          window.open(response.playlistUrl, '_blank');
+
+          const message = `Found ${response.videoCount} of ${response.requestedCount} songs. Playlist opened in new tab!`;
+          this.showMessage(message);
+        } else {
+          this.showMessage('No playlist URL returned');
+        }
+      },
+      error: error => {
+        loadingMessage.dismiss();
+        const errorMessage = error.error?.error || error.message || 'Unknown error';
+        this.showMessage('Error creating playlist: ' + errorMessage);
       },
     });
   }
