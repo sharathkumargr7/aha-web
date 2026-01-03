@@ -1,0 +1,22 @@
+.login {
+  max-width: 320px;
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+}
+label {
+  display: block;
+  margin-bottom: 12px;
+}
+input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+button {
+  padding: 8px 12px;
+}
+.error {
+  color: #b00020;
+  margin-top: 8px;
+}
