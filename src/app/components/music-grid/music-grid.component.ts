@@ -113,7 +113,7 @@ export class MusicGridComponent implements OnInit {
       flex: 1,
       minWidth: 160,
       sort: 'desc',
-      sortIndex: 0,
+      sortIndex: 1,
       valueFormatter: (params: ValueFormatterParams) => {
         if (params.value) {
           return new Date(params.value).toLocaleString();
@@ -125,6 +125,18 @@ export class MusicGridComponent implements OnInit {
         const dateB = new Date(valueB).getTime();
         return dateA - dateB;
       },
+    },
+    {
+      field: 'addedToPlaylist',
+      headerName: 'Added',
+      flex: 0.5,
+      minWidth: 80,
+      sort: 'asc',
+      sortIndex: 0,
+      cellRenderer: (params: ICellRendererParams) => {
+        return params.value ? '✓' : '';
+      },
+      sortable: false,
     },
     {
       field: 'sourceUrl',
@@ -262,18 +274,23 @@ export class MusicGridComponent implements OnInit {
       return;
     }
 
-    // Always use the first displayed row in the grid as the song to send
-    const firstRowNode = this.gridApi.getDisplayedRowAtIndex(0);
-    const firstSong = firstRowNode?.data ?? (this.rowData.length > 0 ? this.rowData[0] : null);
+    // Get the first 5 displayed rows in the grid
+    const songs: AhaMusic[] = [];
+    for (let i = 0; i < 5; i++) {
+      const rowNode = this.gridApi.getDisplayedRowAtIndex(i);
+      if (rowNode?.data) {
+        songs.push(rowNode.data);
+      }
+    }
 
-    if (!firstSong) {
+    if (songs.length === 0) {
       this.showMessage('No songs available to create playlist');
       return;
     }
 
-    // Show loading message for a single song
+    // Show loading message for the songs
     const loadingMessage = this.snackBar.open(
-      `Searching YouTube for "${firstSong.title}"...`,
+      `Searching YouTube for ${songs.length} song${songs.length > 1 ? 's' : ''}...`,
       'Close',
       {
         duration: 0, // Keep open until dismissed
@@ -282,13 +299,11 @@ export class MusicGridComponent implements OnInit {
       },
     );
 
-    // Prepare request with only the first row's song
-    const songRequests = [
-      {
-        title: firstSong.title,
-        artists: firstSong.artists,
-      },
-    ];
+    // Prepare request with the selected songs
+    const songRequests = songs.map(song => ({
+      title: song.title,
+      artists: song.artists,
+    }));
 
     // Call backend to create playlist
     this.youTubeService.createPlaylist(songRequests).subscribe({
@@ -301,11 +316,32 @@ export class MusicGridComponent implements OnInit {
         }
 
         if (response.playlistUrl) {
-          // Open the playlist URL in a new tab
-          window.open(response.playlistUrl, '_blank');
+          // Mark songs as added
+          songs.forEach(song => (song.addedToPlaylist = true));
+          this.gridApi.refreshCells({ force: true });
 
-          const message = `Found ${response.videoCount} of ${response.requestedCount} songs. Playlist opened in new tab!`;
-          this.showMessage(message);
+          // Do NOT auto-open the playlist. Copy URL to clipboard (best-effort)
+          try {
+            navigator.clipboard?.writeText(response.playlistUrl);
+          } catch (e) {
+            // ignore clipboard errors
+          }
+
+          const message = `Found ${response.videoCount} of ${response.requestedCount} songs. Playlist created.`;
+
+          // Show a persistent snackbar with an 'Open' action so the user can open it intentionally
+          const snackRef = this.snackBar.open(message, 'Open', {
+            duration: 0,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+          });
+
+          snackRef.onAction().subscribe(() => {
+            window.open(response.playlistUrl, '_blank');
+          });
+
+          // Let the user know we copied the URL (if supported)
+          this.showMessage('Playlist URL copied to clipboard (if available).');
         } else {
           this.showMessage('No playlist URL returned');
         }

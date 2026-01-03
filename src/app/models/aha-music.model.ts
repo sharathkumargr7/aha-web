@@ -5,4 +5,5 @@ export interface AhaMusic {
   time: string;
   sourceUrl: string;
   detailUrl: string;
+  addedToPlaylist?: boolean;
 }
