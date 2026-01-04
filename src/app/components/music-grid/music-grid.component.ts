@@ -200,6 +200,7 @@ export class MusicGridComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('[MusicGridComponent] ngOnInit called');
     // Check for access token in URL parameters (from OAuth redirect)
     this.route.queryParams.subscribe(params => {
       const accessToken = params['access_token'];
