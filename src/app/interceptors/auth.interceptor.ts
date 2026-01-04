@@ -19,6 +19,18 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private auth: AuthService) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    // Don't add backend token if request already has Authorization header (e.g., YouTube OAuth token)
+    if (req.headers.has('Authorization')) {
+      return next.handle(req).pipe(
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 401) {
+            return this.handle401Error(req, next);
+          }
+          return throwError(() => err);
+        }),
+      );
+    }
+
     const token = this.auth.getAccessToken();
 
     const authReq = token
@@ -59,7 +71,9 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((err: HttpErrorResponse) => {
           this.isRefreshing = false;
-          this.auth.logout();
+          // Don't call logout here, just let the error propagate
+          // The auth guard will handle redirecting to login if needed
+          console.log('[AuthInterceptor] Token refresh failed:', err);
           return throwError(() => err);
         }),
       );

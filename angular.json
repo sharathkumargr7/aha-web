@@ -70,7 +70,8 @@
               "browserTarget": "aha-web:build:production"
             },
             "development": {
-              "browserTarget": "aha-web:build:development"
+              "browserTarget": "aha-web:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

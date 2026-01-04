@@ -1,34 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { YouTubeService } from '../../services/youtube.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
-  username = '';
-  password = '';
+export class LoginComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
   constructor(
-    private auth: AuthService,
+    private youtubeService: YouTubeService,
     private router: Router,
   ) {}
 
-  submit() {
+  ngOnInit() {
+    // Auto-redirect to YouTube OAuth on page load
+    this.loginWithYouTube();
+  }
+
+  loginWithYouTube() {
     this.loading = true;
     this.error = null;
-    this.auth.login(this.username, this.password).subscribe({
-      next: () => {
-        this.loading = false;
-        this.router.navigate(['/']);
+    this.youtubeService.getLoginUrl().subscribe({
+      next: authUrl => {
+        // Redirect to YouTube OAuth
+        window.location.href = authUrl;
       },
       error: () => {
         this.loading = false;
-        this.error = 'Login failed';
+        this.error = 'Failed to start authentication. Please try again.';
       },
     });
   }

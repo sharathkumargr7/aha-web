@@ -1,15 +1,10 @@
 <div class="login">
-  <h2>Sign in</h2>
-  <form (ngSubmit)="submit()">
-    <label>
-      Username
-      <input [(ngModel)]="username" name="username" required />
-    </label>
-    <label>
-      Password
-      <input [(ngModel)]="password" name="password" type="password" required />
-    </label>
-    <button type="submit" [disabled]="loading">Sign in</button>
-    <div class="error" *ngIf="error">{{ error }}</div>
-  </form>
+  <h2>Aha Music Grid</h2>
+  <div class="login-content">
+    <p *ngIf="loading">Redirecting to Google Sign-In...</p>
+    <p *ngIf="error" class="error">{{ error }}</p>
+    <button *ngIf="!loading && error" (click)="loginWithYouTube()" class="youtube-login-btn">
+      Try Again
+    </button>
+  </div>
 </div>

@@ -31,7 +31,7 @@ export class YouTubeService {
     const token = localStorage.getItem('youtube_access_token');
     let headers = new HttpHeaders();
     if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
+      headers = headers.set('X-YouTube-Token', token);
     }
 
     // Include stored playlist ID if available
